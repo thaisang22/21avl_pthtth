@@ -4,22 +4,25 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class RequestProcessing extends Thread {
-    private final Socket channel;
+
+    Socket channel;
 
     public RequestProcessing(Socket socket) {
         this.channel = socket;
     }
-
     @Override
     public void run() {
         try (Socket s = channel;
              OutputStream os = s.getOutputStream();
              InputStream is = s.getInputStream()) {
-            
-            int n;
-            while ((n = is.read()) != -1) {
+
+            while (true) {
+                int n = is.read();
+                if (n == -1)
+                    break;
                 os.write(n);
             }
+
         } catch (IOException e) {
             System.out.println("Request Processing Error: " + e.getMessage());
         }
