@@ -9,11 +9,12 @@ public class STCPEchoServer {
         try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
             System.out.println("Server đã được tạo");
 
+
+            // thêm thông tin client nào đã kết nối 
             while (true) {
                 try (Socket socket = serverSocket.accept();
                      OutputStream os = socket.getOutputStream();
                      InputStream is = socket.getInputStream()) {
-                    
                     int ch;
                     while ((ch = is.read()) != -1) {
                         System.out.println((char) ch);
