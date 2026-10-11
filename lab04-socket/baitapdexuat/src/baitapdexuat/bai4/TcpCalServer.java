@@ -19,9 +19,9 @@ public class TcpCalServer {
     public static void main(String[] args) {
         try (ServerSocket server = new ServerSocket(PORT)) {
             System.out.println("TCP server listening on port" + PORT);
-
             while (true) {
-                try (Socket socket = server.accept()) {
+                try (Socket socket = server.accept()) // mở cổng socket chờ client kết nối
+                {
                     serve(socket);
                 } catch (IOException e) {
                     System.err.println("Lỗi phiên client" + e.getMessage());
@@ -31,6 +31,31 @@ public class TcpCalServer {
             System.err.println("Không mở được server " + e.getMessage());
         }
     }
+
+    // public static void main(String[] args) {
+    //     ExecutorService pool = Executors.newFixedThreadPool(20);
+
+    //     try (ServerSocket server = new ServerSocket(PORT)) {
+    //         System.out.println("TCP Multi-client server listening on port " + PORT);
+
+    //         while (true) {
+    //             Socket socket = server.accept();
+
+    //             pool.submit(() -> {
+    //                 try (socket) {
+    //                     serve(socket);
+    //                 } catch (IOException e) {
+    //                     System.err.println("Lỗi client: " + e.getMessage());
+    //                 }
+    //             });
+    //         }
+
+    //     } catch (IOException e) {
+    //         System.err.println("Không mở được server: " + e.getMessage());
+    //     } finally {
+    //         pool.shutdown();
+    //     }
+    // }
 
     static void serve(Socket socket) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -75,14 +100,14 @@ public class TcpCalServer {
         BigDecimal left;
         BigDecimal right;
         try {
-            left = new BigDecimal(parts[2]);
+            left = new BigDecimal(parts[1]);
             right = new BigDecimal(parts[3]);
         } catch (NumberFormatException e) {
             return "ERR INVALID_NUMBER";
         }
 
         BigDecimal result;
-        switch (parts[1]) {
+        switch (parts[2]) {
             case "+":
                 result = left.add(right);
                 break;

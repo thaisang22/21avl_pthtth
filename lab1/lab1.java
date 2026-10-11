@@ -64,11 +64,10 @@ public class lab1 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         helloWord();
-        // Bo comment mot trong cac dong sau de chay bai tap tuong ung:
-        // nhapTenVaIn(sc);
-        // tongHaiSo(sc);
-        // soChanHayLe(sc);
-        // inRaThang(sc);
+        nhapTenVaIn(sc);
+        tongHaiSo(sc);
+        soChanHayLe(sc);
+        inRaThang(sc);
         sc.close();
     }
 }

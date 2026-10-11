@@ -13,7 +13,6 @@ public class MultiClientTcpServer {
     public static void main(String[] args) {
         // tạo một ThreadPool để khi 1 client kết nối sẽ được giao cho một thread 
         ExecutorService pool = Executors.newFixedThreadPool(MAX_CLIENT); 
-
         // tạo một server socket
         try (ServerSocket server = new ServerSocket(PORT)) {
             System.out.println("Multi-client server on port" + PORT);

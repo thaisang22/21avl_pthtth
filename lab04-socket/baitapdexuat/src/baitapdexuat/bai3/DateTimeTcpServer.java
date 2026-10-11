@@ -11,21 +11,31 @@ import java.nio.charset.StandardCharsets;
 
 public final class DateTimeTcpServer {
     private static final int DEFAULT_PORT = 5200;
-    private DateTimeTcpServer() { }
+
+    private DateTimeTcpServer() {
+    }
+
     public static void main(String[] args) throws IOException {
         int port = args.length == 0 ? DEFAULT_PORT : Integer.parseInt(args[0]);
         try (ServerSocket server = new ServerSocket(port)) {
             System.out.println("Date-time TCP server listening on port " + port);
-            while (true) try (Socket client = server.accept()) { serve(client); }
+            while (true)
+                try (Socket client = server.accept()) {
+                    serve(client);
+                }
         }
     }
+
     private static void serve(Socket client) throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
-             PrintWriter out = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true)) {
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
+                PrintWriter out = new PrintWriter(
+                        new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true)) {
             String request;
             while ((request = in.readLine()) != null) {
                 out.println(DateTimeService.process(request));
-                if ("QUIT".equalsIgnoreCase(request)) return;
+                if ("QUIT".equalsIgnoreCase(request))
+                    return;
             }
         }
     }
