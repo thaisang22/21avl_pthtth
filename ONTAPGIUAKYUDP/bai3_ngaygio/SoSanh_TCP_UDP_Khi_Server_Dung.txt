@@ -1,0 +1,39 @@
+===================================================================================
+SO SÁNH HÀNH VI CỦA CLIENT KHI SERVER DỪNG GIỮA LÚC CLIENT ĐANG HOẠT ĐỘNG (TCP VS UDP)
+(Đáp án chuẩn cho yêu cầu Bài 3 - Lập trình Socket IT.FIT.IUH)
+===================================================================================
+
+1. ĐỐI VỚI TCP (Giao thức hướng kết nối - Connection-oriented):
+- Cơ chế: TCP duy trì một phiên kết nối ảo (Virtual Circuit) bằng cơ chế bắt tay 3 bước
+  và đóng kết nối bằng cờ FIN/RST.
+- Hành vi khi Server dừng:
+  + Nếu Server tắt bình thường (đóng tiến trình): Hệ điều hành gửi gói FIN hoặc RST tới Client.
+    Khi đó, Client đang gọi lệnh `in.readLine()` sẽ nhận ngay giá trị `null` (EOF - End Of Stream),
+    giúp Client phát hiện Server đã đóng và thoát phiên lập tức.
+  + Nếu Server crash đột ngột hoặc đứt cáp: Client gửi dữ liệu tiếp theo sẽ ném ngoại lệ
+    `java.net.SocketException: Connection reset` hoặc `Broken pipe`.
+  + Kết luận TCP: Client phát hiện lỗi và phản ứng tức thì (deterministic).
+
+2. ĐỐI VỚI UDP (Giao thức phi kết nối - Connectionless):
+- Cơ chế: UDP gửi từng gói tin (Datagram) độc lập mà không cần bắt tay, không duy trì trạng thái
+  phiên giữa Client và Server.
+- Hành vi khi Server dừng:
+  + Client hoàn toàn KHÔNG HỀ HAY BIẾT Server đã dừng hay chưa vì không có tín hiệu ACK hoặc FIN.
+  + Client vẫn gọi `socket.send()` bình thường mà không hề báo lỗi (gói tin bị mạng dropped).
+  + Khi Client gọi `socket.receive()` để chờ kết quả:
+    * Nếu KHÔNG cài đặt Timeout: Client sẽ bị TREO VĨNH VIỄN (blocking indefinitely) để chờ
+      một gói tin không bao giờ đến.
+    * Nếu CÓ cài đặt Timeout (`socket.setSoTimeout(ms)`): Sau khoảng thời gian chờ, socket sẽ
+      ném ra ngoại lệ `java.net.SocketTimeoutException`, giúp chương trình không bị treo.
+  + Kết luận UDP: Client bị động, bắt buộc phải có cơ chế Timeout hoặc cơ chế xác nhận gói tin
+    ở tầng ứng dụng.
+
+3. TỔNG KẾT BẢNG SO SÁNH:
++---------------------+-----------------------------------+-----------------------------------+
+| Tiêu chí so sánh    | TCP (Transmission Control)        | UDP (User Datagram)               |
++---------------------+-----------------------------------+-----------------------------------+
+| Trạng thái kết nối  | Hướng kết nối (Stateful)          | Phi kết nối (Stateless)           |
+| Tín hiệu ngắt       | Nhận FIN / RST lập tức            | Không có tín hiệu ngắt            |
+| Đọc dữ liệu (Read)  | in.readLine() trả về null (EOF)   | socket.receive() treo nếu ko timer|
+| Cách khắc phục lỗi  | Kiểm tra null hoặc bắt IOException| Bắt buộc dùng socket.setSoTimeout |
++---------------------+-----------------------------------+-----------------------------------+

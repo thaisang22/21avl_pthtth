@@ -1,5 +1,8 @@
 package baitapdexuat.bai4;
 
+import java.io.*;
+import java.net.*;
+import java.util.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,50 +15,53 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 public class TcpCalServer {
     private static final int PORT = 5000;
 
-    public static void main(String[] args) {
-        try (ServerSocket server = new ServerSocket(PORT)) {
-            System.out.println("TCP server listening on port" + PORT);
-            while (true) {
-                try (Socket socket = server.accept()) // mở cổng socket chờ client kết nối
-                {
-                    serve(socket);
-                } catch (IOException e) {
-                    System.err.println("Lỗi phiên client" + e.getMessage());
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Không mở được server " + e.getMessage());
-        }
-    }
-
     // public static void main(String[] args) {
-    //     ExecutorService pool = Executors.newFixedThreadPool(20);
-
     //     try (ServerSocket server = new ServerSocket(PORT)) {
-    //         System.out.println("TCP Multi-client server listening on port " + PORT);
-
+    //         System.out.println("TCP server listening on port" + PORT);
     //         while (true) {
-    //             Socket socket = server.accept();
-
-    //             pool.submit(() -> {
-    //                 try (socket) {
-    //                     serve(socket);
-    //                 } catch (IOException e) {
-    //                     System.err.println("Lỗi client: " + e.getMessage());
-    //                 }
-    //             });
+    //             try (Socket socket = server.accept()) // mở cổng socket chờ client kết nối
+    //             {
+    //                 serve(socket);
+    //             } catch (IOException e) {
+    //                 System.err.println("Lỗi phiên client" + e.getMessage());
+    //             }
     //         }
-
     //     } catch (IOException e) {
-    //         System.err.println("Không mở được server: " + e.getMessage());
-    //     } finally {
-    //         pool.shutdown();
+    //         System.err.println("Không mở được server " + e.getMessage());
     //     }
     // }
+
+    public static void main(String[] args) {
+        ExecutorService pool = Executors.newFixedThreadPool(20);
+
+        try (ServerSocket server = new ServerSocket(PORT)) {
+            System.out.println("TCP Multi-client server listening on port " + PORT);
+
+            while (true) {
+                Socket socket = server.accept();
+
+                pool.submit(() -> {
+                    try (socket) {
+                        serve(socket);
+                    } catch (IOException e) {
+                        System.err.println("Lỗi client: " + e.getMessage());
+                    }
+                });
+            }
+
+        } catch (IOException e) {
+            System.err.println("Không mở được server: " + e.getMessage());
+        } finally {
+            pool.shutdown();
+        }
+    }
 
     static void serve(Socket socket) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(
